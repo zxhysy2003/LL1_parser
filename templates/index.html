@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>语法分析器</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        #container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+        }
+        #inputSection, #outputSection {
+            width: 45%;
+        }
+        #inputSection {
+            border-right: 1px solid #ccc;
+            padding-right: 20px;
+        }
+        #outputSection {
+            padding-left: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label, textarea, button {
+            margin-bottom: 10px;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column;
+            }
+            #inputSection, #outputSection {
+                width: 100%;
+                border-right: none;
+                padding: 0;
+            }
+            #outputSection {
+                padding-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>词法分析器</h1>
+    <div id="container">
+        <div id="inputSection">
+            <form id="cppForm" action="/run_cpp" method="post">
+                <label for="inputText">Input:</label>
+                <textarea id="inputText" name="inputText" rows="10" cols="50"></textarea>
+                <button type="submit" style="font-size: 18px; padding: 10px 20px;">Run</button>
+            </form>
+        </div>
+        <div id="outputSection">
+            <h2>Output:</h2>
+            <pre id="outputText"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('cppForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const inputText = document.getElementById('inputText').value;
+            const response = await fetch('/run_cpp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ inputText })
+            });
+            const data = await response.json();
+            const result = data.outputText;
+            document.getElementById('outputText').innerText = result;
+        };
+    </script>
+</body>
+</html>
