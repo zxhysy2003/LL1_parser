@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cctype>
 #include <fstream>
+#include <unordered_map>
 
 using namespace std;
 
@@ -12,6 +13,13 @@ using namespace std;
 using Symbol = string;
 using Production = vector<Symbol>;
 using Table = map<Symbol, map<Symbol, Production>>;
+
+// 符号表
+unordered_map<string, int> symbolTable;
+int currentAddress = 1000; // 起始地址
+
+void updateSymbolTable(const string& variable);
+void printSymbolTable(ofstream& output);
 
 vector<Symbol> tokenize(const string& input) {
     // 简单词法分析器，将输入表达式转为token序列
@@ -24,6 +32,7 @@ vector<Symbol> tokenize(const string& input) {
         } else if (isalpha(ch)) {
             string id;
             while (i < input.length() && isalnum(input[i])) id += input[i++];
+            updateSymbolTable(id);
             tokens.push_back("id");
         } else {
             tokens.push_back(string(1, ch));
@@ -134,6 +143,22 @@ vector<string> readFile(const string& filename) {
     return lines;
 }
 
+// 更新符号表
+void updateSymbolTable(const string& variable) {
+    if (symbolTable.find(variable) == symbolTable.end()) {
+        symbolTable[variable] = currentAddress;
+        currentAddress += 4; // 每个变量分配4字节空间
+    }
+}
+
+// 输出符号表
+void printSymbolTable(ofstream& output) {
+    output << "符号表:" << endl;
+    for (const auto& entry : symbolTable) {
+        output << "变量: " << entry.first << ", 地址: " << entry.second << endl;
+    }
+}
+
 int main(int argc, char *argv[]) {
     // 检查命令行参数
     if (argc != 3)
@@ -174,6 +199,8 @@ int main(int argc, char *argv[]) {
         else
             output << errorMessage << endl;
     }
+
+    printSymbolTable(output); // 输出符号表
 
     return 0;
 }
